@@ -26,6 +26,7 @@ import { readSessionMethodAccess } from "../../lib/session-method-access.ts";
 import { parseAgentSessionKey } from "../../lib/sessions/session-key.ts";
 import { renderBoardViewSwitch } from "./board-session-surface.ts";
 import { ChatPaneContext } from "./chat-pane-context.ts";
+import { resolveChatPanePlacement } from "./chat-pane-placement.ts";
 import { headerPlatformByClient } from "./chat-pane-shared.ts";
 import { readChatSessionActionAccess } from "./chat-session-action-access.ts";
 import { patchChatSessionLabel } from "./chat-state-route.ts";
@@ -163,6 +164,11 @@ export abstract class ChatPaneHeader extends ChatPaneContext {
           </button>
         </openclaw-tooltip>`
       : nothing;
+    const placement = resolveChatPanePlacement({
+      gatewaySnapshot: this.context.gateway.snapshot,
+      reclaimingKey: this.headerPlacementReclaimingKey,
+      row,
+    });
     return renderChatPaneHeader({
       paneId: this.paneId,
       narrow: this.narrow,
@@ -272,6 +278,7 @@ export abstract class ChatPaneHeader extends ChatPaneContext {
               row && void this.setSessionMember(row, identityId, member),
           })
         : nothing,
+      placementReclaimDisabledReason: placement.reclaimDisabledReason,
       nativeGateways: this.nativeGateways,
       gatewaysSnapshot: this.gatewaysSnapshot,
       onboarding: this.onboarding,
@@ -291,6 +298,7 @@ export abstract class ChatPaneHeader extends ChatPaneContext {
           this.handleHeaderMenuAction(action, row, workspace.root, branch);
         }
       },
+      onPlacementReclaim: () => row && void this.reclaimHeaderPlacement(row),
       onBranchSelect: (leafEntryId) => {
         const access = readChatSessionActionAccess(
           this.context.gateway.snapshot,
