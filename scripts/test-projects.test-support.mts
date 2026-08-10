@@ -696,7 +696,10 @@ const SOURCE_TEST_TARGETS = new Map([
     "src/commitments/model-selection.runtime.ts",
     ["src/commitments/runtime.test.ts", "src/agents/model-selection.test.ts"],
   ],
-  ["src/agents/live-model-turn-probes.ts", ["src/agents/live-model-turn-probes.test.ts"]],
+  [
+    "src/agents/test-helpers/live-model-turn-probes.ts",
+    ["src/agents/live-model-turn-probes.test.ts"],
+  ],
   [
     "src/plugins/provider-auth-choice.ts",
     ["src/commands/auth-choice.apply.plugin-provider.test.ts", "src/commands/auth-choice.test.ts"],
