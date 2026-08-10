@@ -694,7 +694,8 @@ export const en: TranslationMap = {
     recentFolders: "Recent",
     runsOn: "Runs on {place}",
     browse: "Browse folders",
-    browseRequiresAdmin: "Folder browsing needs an admin connection",
+    browseRequiresAdmin:
+      "Request admin in the access banner, then approve this browser from Devices.",
     browserUp: "Parent folder",
     browserUse: "Use this folder",
     browserEmpty: "No subfolders",
@@ -3560,6 +3561,19 @@ export const en: TranslationMap = {
     queuedCount: "{count} queued",
     reconnecting: "Reconnecting…",
     retryNow: "Retry now",
+    scopeUpgrade: {
+      limited: "This browser has limited access.",
+      request: "Request admin",
+      requesting: "Requesting administrator access…",
+      requestingAction: "Requesting…",
+      pending:
+        "Approve this browser by running openclaw devices on the Gateway or from Devices on an admin browser. Retry reattaches to the request; Cancel stops waiting.",
+      retry: "Retry",
+      cancel: "Cancel",
+      rejected: "The administrator access request was rejected.",
+      expired: "The administrator access request expired.",
+      error: "Administrator access request failed: {error}",
+    },
     access: {
       title: "Gateway Access",
       subtitle: "Where the dashboard connects and how it authenticates.",
