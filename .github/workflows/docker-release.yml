@@ -219,6 +219,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=docker-release-amd64
           build-args: |
             OPENCLAW_EXTENSIONS=diagnostics-otel,codex
+            OPENCLAW_IMAGE_APT_PACKAGES=libreoffice
+            OPENCLAW_IMAGE_PIP_PACKAGES=openpyxl python-docx python-pptx
           tags: ${{ steps.tags.outputs.value }}
           labels: ${{ steps.labels.outputs.value }}
           sbom: true
@@ -240,6 +242,8 @@ jobs:
           build-args: |
             OPENCLAW_EXTENSIONS=diagnostics-otel,codex
             OPENCLAW_INSTALL_BROWSER=1
+            OPENCLAW_IMAGE_APT_PACKAGES=libreoffice
+            OPENCLAW_IMAGE_PIP_PACKAGES=openpyxl python-docx python-pptx
           tags: ${{ steps.tags.outputs.browser }}
           labels: ${{ steps.labels.outputs.value }}
           sbom: true
@@ -440,6 +444,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=docker-release-arm64
           build-args: |
             OPENCLAW_EXTENSIONS=diagnostics-otel,codex
+            OPENCLAW_IMAGE_APT_PACKAGES=libreoffice
+            OPENCLAW_IMAGE_PIP_PACKAGES=openpyxl python-docx python-pptx
           tags: ${{ steps.tags.outputs.value }}
           labels: ${{ steps.labels.outputs.value }}
           sbom: true
@@ -461,6 +467,8 @@ jobs:
           build-args: |
             OPENCLAW_EXTENSIONS=diagnostics-otel,codex
             OPENCLAW_INSTALL_BROWSER=1
+            OPENCLAW_IMAGE_APT_PACKAGES=libreoffice
+            OPENCLAW_IMAGE_PIP_PACKAGES=openpyxl python-docx python-pptx
           tags: ${{ steps.tags.outputs.browser }}
           labels: ${{ steps.labels.outputs.value }}
           sbom: true
