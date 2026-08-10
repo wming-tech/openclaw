@@ -18,7 +18,7 @@ export type WorkerRuntimeResult =
 
 const WORKER_REMOTE_CANCEL_GRACE_MS = 1_000;
 
-function toError(value: unknown, fallback: string): Error {
+function toWorkerRuntimeError(value: unknown, fallback: string): Error {
   return value instanceof Error ? value : new Error(fallback, { cause: value });
 }
 
@@ -153,7 +153,7 @@ export async function runWorkerDescriptor(
         signal: abortController.signal,
       });
       if (options.signal?.aborted) {
-        throw toError(options.signal.reason, "worker interrupted");
+        throw toWorkerRuntimeError(options.signal.reason, "worker interrupted");
       }
     } catch (error) {
       const fenced = fencedResult(connection.state);
@@ -161,12 +161,12 @@ export async function runWorkerDescriptor(
         return fenced;
       }
       if (options.signal?.aborted) {
-        throw toError(options.signal.reason, "worker interrupted");
+        throw toWorkerRuntimeError(options.signal.reason, "worker interrupted");
       }
       if (terminalLiveAcked && connection.state.kind === "ready") {
         return { status: "failed", reason: "turn-failed" };
       }
-      throw toError(error, "worker session failed");
+      throw toWorkerRuntimeError(error, "worker session failed");
     }
     const fenced = fencedResult(connection.state);
     if (fenced) {
