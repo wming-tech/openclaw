@@ -1,5 +1,8 @@
 import { html, nothing } from "lit";
-import type { FsListDirResult } from "../../../../packages/gateway-protocol/src/index.js";
+import type {
+  FsListDirResult,
+  ProjectRecord,
+} from "../../../../packages/gateway-protocol/src/index.js";
 import { icons } from "../../components/icons.ts";
 import { t } from "../../i18n/index.ts";
 import { renderCloudProfileMenuItems, renderSessionMenuItem } from "./cloud-target.ts";
@@ -133,6 +136,8 @@ export function renderPlaceSelect(params: {
   browseAvailable: boolean;
   folder: string;
   workspace: string;
+  projects: readonly ProjectRecord[];
+  projectId: string;
   sessions: readonly RecentPlaceSource[];
   execNodes: DraftNode[];
   gatewayName: string;
@@ -166,6 +171,7 @@ export function renderPlaceSelect(params: {
   onPopoverAfterHide: () => void;
   onSelectExecNode: (nodeId: string) => void;
   onSelectCloudProfile: (profileId: string) => void;
+  onSelectProject: (projectId: string) => void;
   onApplyFolder: (folder: string, execNode: string) => void;
   onBrowse: (target: BrowserTarget) => void;
   onBrowserPathDraftChange: (value: string) => void;
@@ -177,11 +183,14 @@ export function renderPlaceSelect(params: {
   onWorktreeNameInput: (name: string) => void;
 }) {
   const folder = params.folder.trim();
-  const folderLabel = folder
-    ? folderDisplayName(folder)
-    : params.execNode
-      ? t("newSession.folderPlaceholder")
-      : folderDisplayName(params.workspace) || t("newSession.folderPlaceholder");
+  const selectedProject = params.projects.find((project) => project.id === params.projectId);
+  const folderLabel = selectedProject
+    ? selectedProject.displayName
+    : folder
+      ? folderDisplayName(folder)
+      : params.execNode
+        ? t("newSession.folderPlaceholder")
+        : folderDisplayName(params.workspace) || t("newSession.folderPlaceholder");
   const activeNode = params.execNodes.find((node) => node.nodeId === params.execNode);
   const activeProfile = params.cloudProfiles.find(
     (profile) => profile.id === params.cloudProfileId,
@@ -237,6 +246,7 @@ export function renderPlaceSelect(params: {
         title=${t("newSession.where")}
         aria-label="${t("newSession.where")}: ${label}"
         data-worktree=${String(params.worktree)}
+        data-project-id=${params.projectId || nothing}
         data-cloud-profile=${params.cloudProfileId || nothing}
         aria-haspopup="dialog"
         aria-expanded=${String(params.popoverOpen)}
@@ -244,7 +254,13 @@ export function renderPlaceSelect(params: {
         @click=${params.onGuardTransition}
       >
         <span class="new-session-page__target-icon" aria-hidden="true"
-          >${params.cloudProfileId ? icons.server : params.execNode ? nodeIcon : icons.folder}</span
+          >${params.cloudProfileId
+            ? icons.server
+            : params.execNode
+              ? nodeIcon
+              : selectedProject
+                ? icons.gitBranch
+                : icons.folder}</span
         >
         <span class="new-session-page__trigger-label">${label}</span>
         ${params.worktree
@@ -288,11 +304,32 @@ export function renderPlaceSelect(params: {
                     {
                       value: "workspace",
                       label: folderDisplayName(params.workspace),
-                      checked: !params.execNode && effectiveFolder === params.workspace,
+                      checked:
+                        !params.projectId &&
+                        !params.execNode &&
+                        effectiveFolder === params.workspace,
                       onSelect: () => params.onApplyFolder(params.workspace, ""),
                     },
                     params.submitting,
                   )
+                : nothing}
+              ${params.projects.length > 0
+                ? html`
+                    <div class="new-session-page__menu-title">${t("newSession.projects")}</div>
+                    ${params.projects.map((project) =>
+                      renderSessionMenuItem(
+                        {
+                          value: `project:${project.id}`,
+                          label: project.displayName,
+                          icon: icons.gitBranch,
+                          checked: params.projectId === project.id,
+                          title: project.repoRoot,
+                          onSelect: () => params.onSelectProject(project.id),
+                        },
+                        params.submitting,
+                      ),
+                    )}
+                  `
                 : nothing}
               ${recents.length > 0
                 ? html`
@@ -303,7 +340,10 @@ export function renderPlaceSelect(params: {
                           value: `recent:${recent.execNode}:${recent.folder}`,
                           label: recent.label,
                           sub: recentSuffixes[index],
-                          checked: params.execNode === recent.execNode && folder === recent.folder,
+                          checked:
+                            !params.projectId &&
+                            params.execNode === recent.execNode &&
+                            folder === recent.folder,
                           title: recent.folder,
                           onSelect: () => params.onApplyFolder(recent.folder, recent.execNode),
                         },
