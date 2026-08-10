@@ -8,8 +8,10 @@ import {
   resolveRequiredHomeDir,
   resolveUserPath,
 } from "./infra/home-dir.js";
+import { shortenPathWithHome } from "./infra/home-display.js";
 import { isPlainObject } from "./infra/plain-object.js";
-export { escapeRegExp } from "./shared/regexp.js";
+import { escapeRegExp } from "./shared/regexp.js";
+export { escapeRegExp };
 export { sleep } from "./utils/sleep.js";
 export { isRecord } from "@openclaw/normalization-core/record-coerce";
 export { resolveUserPath };
@@ -102,21 +104,11 @@ function resolveHomeDisplayPrefix(): { home: string; prefix: string } | undefine
 
 /** Replaces the leading home directory in a path with `~` or `$OPENCLAW_HOME`. */
 export function shortenHomePath(input: string): string {
-  if (!input) {
-    return input;
-  }
   const display = resolveHomeDisplayPrefix();
   if (!display) {
     return input;
   }
-  const { home, prefix } = display;
-  if (input === home) {
-    return prefix;
-  }
-  if (input.startsWith(`${home}/`) || input.startsWith(`${home}\\`)) {
-    return `${prefix}${input.slice(home.length)}`;
-  }
-  return input;
+  return shortenPathWithHome(input, display);
 }
 
 /** Replaces all effective-home occurrences inside a diagnostic string. */
@@ -127,6 +119,9 @@ export function shortenHomeInString(input: string): string {
   const display = resolveHomeDisplayPrefix();
   if (!display) {
     return input;
+  }
+  if (process.platform === "win32") {
+    return input.replace(new RegExp(escapeRegExp(display.home), "giu"), display.prefix);
   }
   return input.split(display.home).join(display.prefix);
 }
